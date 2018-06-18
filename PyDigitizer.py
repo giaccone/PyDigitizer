@@ -1,14 +1,13 @@
 # modules
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout
 from PyQt5.QtWidgets import QGroupBox, QPushButton, QFileDialog, QSizePolicy
-from PyQt5.QtWidgets import QRadioButton, QInputDialog
+from PyQt5.QtWidgets import QRadioButton, QInputDialog, QLabel, QDesktopWidget
 from PyQt5.QtCore import Qt
 #
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-plt.ion()
 #
 import sys
 from math import log10
@@ -49,11 +48,13 @@ class Windows(QMainWindow):
     def __init__(self):
         super().__init__()
         #
+        sizeObject = QDesktopWidget().screenGeometry(-1)
+        screenRatio = sizeObject.height() / sizeObject.width()
         self.title = "PyDigitizer"
         self.top = 100
         self.left = 100
-        self.width = 900
-        self.height = 500
+        self.width = sizeObject.width() * 0.6
+        self.height = self.width * screenRatio
         #
         self.CentralWidget = self.InitWindow()
         #
@@ -99,7 +100,12 @@ class MainWidget(QWidget):
         self.Xlog,
         self.Ylinear,
         self.Ylog,
-        self.FigCanvas) = self.initUI()
+        self.FigCanvas,
+        self.HintLabel,
+        self.XminLabel,
+        self.YminLabel,
+        self.XmaxLabel,
+        self.YmaxLabel) = self.initUI()
 
         self.show()
 
@@ -122,19 +128,31 @@ class MainWidget(QWidget):
         LayoutSx2 = QGridLayout()
         #
         XminButton = QPushButton('Pick X_min',self)
+        XminLabel = QLabel(self)
+        XminLabel.setStyleSheet(('background-color : white; color: black'))
         YminButton = QPushButton('Pick Y_min',self)
+        YminLabel = QLabel(self)
+        YminLabel.setStyleSheet(('background-color : white; color: black'))
         XmaxButton = QPushButton('Pick X_max',self)
+        XmaxLabel = QLabel(self)
+        XmaxLabel.setStyleSheet(('background-color : white; color: black'))
         YmaxButton = QPushButton('Pick Y_max',self)
-        #
-        LayoutSx2.addWidget(XminButton,0,0)
-        LayoutSx2.addWidget(YminButton,1,0)
-        LayoutSx2.addWidget(XmaxButton,2,0)
-        LayoutSx2.addWidget(YmaxButton,3,0)
+        YmaxLabel = QLabel(self)
+        YmaxLabel.setStyleSheet(('background-color : white; color: black'))
         #
         XminButton.clicked.connect(self.pickXmin)
         YminButton.clicked.connect(self.pickYmin)
         XmaxButton.clicked.connect(self.pickXmax)
         YmaxButton.clicked.connect(self.pickYmax)
+        #
+        LayoutSx2.addWidget(XminButton,0,0)
+        LayoutSx2.addWidget(XminLabel,0,1)
+        LayoutSx2.addWidget(YminButton,1,0)
+        LayoutSx2.addWidget(YminLabel,1,1)
+        LayoutSx2.addWidget(XmaxButton,2,0)
+        LayoutSx2.addWidget(XmaxLabel,2,1)
+        LayoutSx2.addWidget(YmaxButton,3,0)
+        LayoutSx2.addWidget(YmaxLabel,3,1)
         #
         VBoxSx2.setLayout(LayoutSx2)
         # ----------------------------------
@@ -172,17 +190,30 @@ class MainWidget(QWidget):
         PickPointButton = QPushButton('Pick Points',self)
         PickPointButton.clicked.connect(self.pickPoints)
 
-        LayoutSx5.addWidget(PickPointButton,1,0)
+        LayoutSx5.addWidget(PickPointButton,0,0)
         VBoxSx5.setLayout(LayoutSx5)
         # ----------------------------------
         VBoxSx6 = QGroupBox()
         LayoutSx6 = QGridLayout()
 
         SaveToFileButton = QPushButton('Save to File',self)
+        TestDataButton = QPushButton('Test data',self)
         SaveToFileButton.clicked.connect(self.saveToFile)
+        TestDataButton.clicked.connect(self.testData)
 
-        LayoutSx6.addWidget(SaveToFileButton,1,0)
+        LayoutSx6.addWidget(SaveToFileButton,0,0)
+        LayoutSx6.addWidget(TestDataButton,1,0)
         VBoxSx6.setLayout(LayoutSx6)
+        # ----------------------------------
+        VBoxSx7 = QGroupBox()
+        LayoutSx7 = QGridLayout()
+        HintLabel = QLabel(self)
+        HintLabel.setMaximumHeight(40)
+        HintLabel.setStyleSheet(('background-color : white; color: black'))
+        HintLabel.setText('')
+
+        LayoutSx7.addWidget(HintLabel,1,0)
+        VBoxSx7.setLayout(LayoutSx7)
         # ----------------------------------
         # Second Column (Figure)
         VBoxDx1 = QGroupBox()
@@ -204,16 +235,25 @@ class MainWidget(QWidget):
         windowLayout.addWidget(VBoxSx4, 3, 0)
         windowLayout.addWidget(VBoxSx5, 4, 0)
         windowLayout.addWidget(VBoxSx6, 5, 0)
+        windowLayout.addWidget(VBoxSx7, 6, 0, 1, 2)
         #
         windowLayout.addWidget(VBoxDx1, 0, 1, 6, 1)
         # Stretches
         windowLayout.setColumnStretch(0, 0)
         windowLayout.setColumnStretch(1, 2)
+        windowLayout.setRowStretch(0, 1)
+        windowLayout.setRowStretch(1, 1)
+        windowLayout.setRowStretch(2, 1)
+        windowLayout.setRowStretch(3, 1)
+        windowLayout.setRowStretch(4, 1)
+        windowLayout.setRowStretch(5, 1)
+        windowLayout.setRowStretch(6, 0)
         #
         self.setLayout(windowLayout)
         # ----------------------------------
         # ----------------------------------
-        return Xlinear, Xlolg, Ylinear, Ylog, FigCanvas
+        return (Xlinear, Xlolg, Ylinear, Ylog, FigCanvas, HintLabel,
+                XminLabel, YminLabel, XmaxLabel, YmaxLabel)
 
     def loadImage(self):
 
@@ -226,39 +266,55 @@ class MainWidget(QWidget):
 
     def pickXmin(self):
 
+        self.HintLabel.setText('Click at a point having minimum x value.')
         self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
         self.FigCanvas.setFocus()
         pt = self.FigCanvas.figure.ginput(n=1)
         self.Xpic_min = pt[0][0]
 
-        self.Xreal_min, okPressed = QInputDialog.getDouble(self, "Set X_min value", "Value:", 0)
+        self.HintLabel.setText('Provide the minimum x value.')
+        self.Xreal_min, okPressed = QInputDialog.getDouble(self, "Set X_min value", "Value:", value=0, decimals=4)
+        self.HintLabel.setText('')
+        self.XminLabel.setText(str(self.Xreal_min))
 
     def pickYmin(self):
 
+        self.HintLabel.setText('Click at a point having minimum y value.')
         self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
         self.FigCanvas.setFocus()
         pt = self.FigCanvas.figure.ginput(n=1)
         self.Ypic_min = pt[0][1]
 
-        self.Yreal_min, okPressed = QInputDialog.getDouble(self, "Set Y_min value", "Value:", 0)
+        self.HintLabel.setText('Provide the minimum y value.')
+        self.Yreal_min, okPressed = QInputDialog.getDouble(self, "Set Y_min value", "Value:", value=0, decimals=4)
+        self.HintLabel.setText('')
+        self.YminLabel.setText(str(self.Yreal_min))
 
     def pickXmax(self):
 
+        self.HintLabel.setText('Click at a point having maximum x value.')
         self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
         self.FigCanvas.setFocus()
         pt = self.FigCanvas.figure.ginput(n=1)
         self.Xpic_max = pt[0][0]
 
-        self.Xreal_max, okPressed = QInputDialog.getDouble(self, "Set X_max value", "Value:", 0)
+        self.HintLabel.setText('Provide the maximum x value.')
+        self.Xreal_max, okPressed = QInputDialog.getDouble(self, "Set X_max value", "Value:", value=0, decimals=4)
+        self.HintLabel.setText('')
+        self.XmaxLabel.setText(str(self.Xreal_max))
 
     def pickYmax(self):
 
+        self.HintLabel.setText('Click at a point having maximum y value.')
         self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
         self.FigCanvas.setFocus()
         pt = self.FigCanvas.figure.ginput(n=1)
         self.Ypic_max = pt[0][1]
 
-        self.Yreal_max, okPressed = QInputDialog.getDouble(self, "Set Y_max value", "Value:", 0)
+        self.HintLabel.setText('Provide the maximum y value.')
+        self.Yreal_max, okPressed = QInputDialog.getDouble(self, "Set Y_max value", "Value:", value=0, decimals=4)
+        self.HintLabel.setText('')
+        self.YmaxLabel.setText(str(self.Yreal_max))
 
     def setXScaleType(self):
         if self.Xlinear.isChecked():
@@ -274,6 +330,10 @@ class MainWidget(QWidget):
 
     def pickPoints(self):
 
+        self.HintLabel.setText('Pick points: please note that if you zoom, '
+                               'the first click (for zooming) is registered. '
+                               'Remove it with backspace.')
+
         self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
         self.FigCanvas.setFocus()
         pt = self.FigCanvas.figure.ginput(n=-1, timeout=-1)
@@ -285,10 +345,42 @@ class MainWidget(QWidget):
             self.Xsampled.append(ptx)
             self.Ysampled.append(pty)
 
-        print(self.Xsampled)
-        print(self.Ysampled)
+        self.HintLabel.setText('')
 
     def saveToFile(self):
+
+        if self.Xpic_min is None:
+            self.HintLabel.setText('Please pick X_min')
+            return
+        elif self.Ypic_min is None:
+            self.HintLabel.setText('Please pick Y_min')
+            return
+        elif self.Xpic_max is None:
+            self.HintLabel.setText('Please pick X_max')
+            return
+        elif self.Ypic_max is None:
+            self.HintLabel.setText('Please pick Y_max')
+            return
+        elif self.Xreal_min is None:
+            self.HintLabel.setText('Please pick X_min')
+            return
+        elif self.Yreal_min is None:
+            self.HintLabel.setText('Please pick Y_min')
+            return
+        elif self.Xreal_max is None:
+            self.HintLabel.setText('Please pick X_max')
+            return
+        elif self.Yreal_max is None:
+            self.HintLabel.setText('Please pick Y_max')
+            return
+        elif self.Xsampled is None:
+            self.HintLabel.setText('Please pick data')
+            return
+        elif self.Ysampled is None:
+            self.HintLabel.setText('Please pick data')
+            return
+        else:
+            self.HintLabel.setText('')
 
         self.x = []
         self.y = []
@@ -316,6 +408,27 @@ class MainWidget(QWidget):
         with open(fname, 'w') as fid:
             for xpt, ypt in zip(self.x, self.y):
                 fid.write("{} {}\n".format(xpt, ypt))
+
+    def testData(self):
+
+        filename, _ = QFileDialog.getOpenFileName()
+
+        xs = []
+        ys = []
+        with open(filename, 'r') as fid:
+            for line in fid:
+                line = line.split(' ')
+                xs.append(float(line[0]))
+                ys.append(float(line[1]))
+        hf = plt.figure()
+        plt.plot(xs, ys,'C0-o')
+        ax = hf.gca()
+        ax.set_xlabel('x variable')
+        ax.set_ylabel('y variable')
+        ax.set_xscale(self.XScaleType)
+        ax.set_yscale(self.YScaleType)
+        plt.show()
+
 
 
 # Start App
