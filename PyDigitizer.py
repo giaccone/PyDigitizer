@@ -1,8 +1,8 @@
 # modules
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout
-from PyQt5.QtWidgets import QGroupBox, QPushButton, QFileDialog, QSizePolicy
-from PyQt5.QtWidgets import QRadioButton, QInputDialog, QLabel, QDesktopWidget
-from PyQt5.QtCore import Qt
+from PySide2.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout
+from PySide2.QtWidgets import QGroupBox, QPushButton, QFileDialog, QSizePolicy
+from PySide2.QtWidgets import QRadioButton, QInputDialog, QLabel, QDesktopWidget
+# from PyQt5.QtCore import Qt
 #
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -456,4 +456,4 @@ class MainWidget(QWidget):
 if __name__ == '__main__':
     App = QApplication(sys.argv)
     window = Windows()
-    sys.exit(App.exec())
+    sys.exit(App.exec_())
