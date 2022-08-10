@@ -1,10 +1,12 @@
 # modules
 from PySide2.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout
-from PySide2.QtWidgets import QGroupBox, QPushButton, QFileDialog, QSizePolicy
-from PySide2.QtWidgets import QRadioButton, QInputDialog, QLabel, QDesktopWidget
+from PySide2.QtWidgets import QGroupBox, QPushButton, QFileDialog
+from PySide2.QtWidgets import QRadioButton, QInputDialog, QLabel
 from PySide2.QtGui import QGuiApplication
 #
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+mpl.rcParams["keymap.back"] = ['left', 'c']
 #
 import sys
 from math import log10, floor
