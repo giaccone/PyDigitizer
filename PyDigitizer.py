@@ -208,6 +208,7 @@ class MainWidget(QWidget):
         VBoxSx7 = QGroupBox()
         LayoutSx7 = QGridLayout()
         HintLabel = QLabel(self)
+        HintLabel.setWordWrap(True)
         HintLabel.setMaximumHeight(40)
         HintLabel.setStyleSheet(('background-color : white; color: black'))
         HintLabel.setText('')
@@ -419,29 +420,35 @@ class MainWidget(QWidget):
 
         fname , _ = QFileDialog.getSaveFileName(self)
 
-        with open(fname, 'w') as fid:
-            for xpt, ypt in zip(self.x, self.y):
-                fid.write("{} {}\n".format(xpt, ypt))
+        try:
+            with open(fname, 'w') as fid:
+                for xpt, ypt in zip(self.x, self.y):
+                    fid.write("{} {}\n".format(xpt, ypt))
+        except FileNotFoundError:
+            self.HintLabel.setText('File not found')
 
     def testData(self):
 
         filename, _ = QFileDialog.getOpenFileName()
 
-        xs = []
-        ys = []
-        with open(filename, 'r') as fid:
-            for line in fid:
-                line = line.split(' ')
-                xs.append(float(line[0]))
-                ys.append(float(line[1]))
-        hf = plt.figure()
-        plt.plot(xs, ys,'C0-o')
-        ax = hf.gca()
-        ax.set_xlabel('x variable')
-        ax.set_ylabel('y variable')
-        ax.set_xscale(self.XScaleType)
-        ax.set_yscale(self.YScaleType)
-        plt.show()
+        try:
+            xs = []
+            ys = []
+            with open(filename, 'r') as fid:
+                for line in fid:
+                    line = line.split(' ')
+                    xs.append(float(line[0]))
+                    ys.append(float(line[1]))
+            hf = plt.figure()
+            plt.plot(xs, ys,'C0-o')
+            ax = hf.gca()
+            ax.set_xlabel('x variable')
+            ax.set_ylabel('y variable')
+            ax.set_xscale(self.XScaleType)
+            ax.set_yscale(self.YScaleType)
+            plt.show()
+        except FileNotFoundError:
+            self.HintLabel.setText('File not found')
 
 
 
