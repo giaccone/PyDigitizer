@@ -209,7 +209,7 @@ class MainWidget(QWidget):
         LayoutSx7 = QGridLayout()
         HintLabel = QLabel(self)
         HintLabel.setWordWrap(True)
-        HintLabel.setMaximumHeight(40)
+        HintLabel.setMaximumHeight(80)
         HintLabel.setStyleSheet(('background-color : white; color: black'))
         HintLabel.setText('')
 
