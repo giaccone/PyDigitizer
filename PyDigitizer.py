@@ -10,7 +10,7 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 #
 import sys
-from math import log10
+from math import log10, floor
 
 
 # FigureCanvas
@@ -53,8 +53,8 @@ class Windows(QMainWindow):
         self.title = "PyDigitizer"
         self.top = 100
         self.left = 100
-        self.width = sizeObject.width() * 0.6
-        self.height = self.width * screenRatio
+        self.width = floor(sizeObject.width() * 0.2)
+        self.height = floor(self.width * screenRatio)
         #
         self.CentralWidget = self.InitWindow()
         #
@@ -235,19 +235,19 @@ class MainWidget(QWidget):
         windowLayout.addWidget(VBoxSx4, 3, 0)
         windowLayout.addWidget(VBoxSx5, 4, 0)
         windowLayout.addWidget(VBoxSx6, 5, 0)
-        windowLayout.addWidget(VBoxSx7, 6, 0, 1, 2)
+        windowLayout.addWidget(VBoxSx7, 6, 0)
         #
-        windowLayout.addWidget(VBoxDx1, 0, 1, 6, 1)
+        #windowLayout.addWidget(VBoxDx1, 0, 1, 6, 1)
         # Stretches
-        windowLayout.setColumnStretch(0, 0)
-        windowLayout.setColumnStretch(1, 2)
-        windowLayout.setRowStretch(0, 1)
-        windowLayout.setRowStretch(1, 1)
-        windowLayout.setRowStretch(2, 1)
-        windowLayout.setRowStretch(3, 1)
-        windowLayout.setRowStretch(4, 1)
-        windowLayout.setRowStretch(5, 1)
-        windowLayout.setRowStretch(6, 0)
+        # windowLayout.setColumnStretch(0, 0)
+        # windowLayout.setColumnStretch(1, 2)
+        # windowLayout.setRowStretch(0, 1)
+        # windowLayout.setRowStretch(1, 1)
+        # windowLayout.setRowStretch(2, 1)
+        # windowLayout.setRowStretch(3, 1)
+        # windowLayout.setRowStretch(4, 1)
+        # windowLayout.setRowStretch(5, 1)
+        # windowLayout.setRowStretch(6, 0)
         #
         self.setLayout(windowLayout)
         # ----------------------------------
@@ -259,17 +259,23 @@ class MainWidget(QWidget):
 
         filename, _ = QFileDialog.getOpenFileName()
         img = plt.imread(filename)
-        self.FigCanvas.axes.clear()
-        self.FigCanvas.axes.imshow(img)
-        self.FigCanvas.axes.axis('off')
-        self.FigCanvas.draw_idle()
+        self.handle = plt.figure()
+        plt.imshow(img)
+        plt.axis('off')
+        plt.show()
+        # self.FigCanvas.axes.clear()
+        # self.FigCanvas.axes.imshow(img)
+        # self.FigCanvas.axes.axis('off')
+        # self.FigCanvas.draw_idle()
 
     def pickXmin(self):
 
         self.HintLabel.setText('Click at a point having minimum x value.')
-        self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
-        self.FigCanvas.setFocus()
-        pt = self.FigCanvas.figure.ginput(n=1)
+        plt.figure(self.handle.number)
+        pt = plt.ginput(n=1)
+        # self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
+        # self.FigCanvas.setFocus()
+        # pt = self.FigCanvas.figure.ginput(n=1)
         self.Xpic_min = pt[0][0]
 
         self.HintLabel.setText('Provide the minimum x value.')
@@ -280,9 +286,11 @@ class MainWidget(QWidget):
     def pickYmin(self):
 
         self.HintLabel.setText('Click at a point having minimum y value.')
-        self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
-        self.FigCanvas.setFocus()
-        pt = self.FigCanvas.figure.ginput(n=1)
+        plt.figure(self.handle.number)
+        pt = plt.ginput(n=1)
+        # self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
+        # self.FigCanvas.setFocus()
+        # pt = self.FigCanvas.figure.ginput(n=1)
         self.Ypic_min = pt[0][1]
 
         self.HintLabel.setText('Provide the minimum y value.')
@@ -293,9 +301,11 @@ class MainWidget(QWidget):
     def pickXmax(self):
 
         self.HintLabel.setText('Click at a point having maximum x value.')
-        self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
-        self.FigCanvas.setFocus()
-        pt = self.FigCanvas.figure.ginput(n=1)
+        plt.figure(self.handle.number)
+        pt = plt.ginput(n=1)
+        # self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
+        # self.FigCanvas.setFocus()
+        # pt = self.FigCanvas.figure.ginput(n=1)
         self.Xpic_max = pt[0][0]
 
         self.HintLabel.setText('Provide the maximum x value.')
@@ -306,9 +316,11 @@ class MainWidget(QWidget):
     def pickYmax(self):
 
         self.HintLabel.setText('Click at a point having maximum y value.')
-        self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
-        self.FigCanvas.setFocus()
-        pt = self.FigCanvas.figure.ginput(n=1)
+        plt.figure(self.handle.number)
+        pt = plt.ginput(n=1)
+        # self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
+        # self.FigCanvas.setFocus()
+        # pt = self.FigCanvas.figure.ginput(n=1)
         self.Ypic_max = pt[0][1]
 
         self.HintLabel.setText('Provide the maximum y value.')
@@ -334,9 +346,11 @@ class MainWidget(QWidget):
                                'the first click (for zooming) is registered. '
                                'Remove it with backspace.')
 
-        self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
-        self.FigCanvas.setFocus()
-        pt = self.FigCanvas.figure.ginput(n=-1, timeout=-1)
+        plt.figure(self.handle.number)
+        pt = plt.ginput(n=-1, timeout=-1)
+        # self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
+        # self.FigCanvas.setFocus()
+        # pt = self.FigCanvas.figure.ginput(n=-1, timeout=-1)
 
         self.Xsampled = []
         self.Ysampled = []
@@ -385,19 +399,19 @@ class MainWidget(QWidget):
         self.x = []
         self.y = []
 
-        if self.XScaleType is 'linear':
+        if self.XScaleType == 'linear':
             for xs in self.Xsampled:
                 self.x.append(self.Xreal_min + (self.Xreal_max - self.Xreal_min) / (self.Xpic_max - self.Xpic_min) * ( xs - self.Xpic_min))
-        elif self.XScaleType is 'log':
+        elif self.XScaleType == 'log':
             Xreal_min = log10(self.Xreal_min)
             Xreal_max = log10(self.Xreal_max)
             for xs in self.Xsampled:
                 self.x.append(10 ** (Xreal_min + (xs - self.Xpic_min)/(self.Xpic_max - self.Xpic_min) * (Xreal_max - Xreal_min)))
 
-        if self.YScaleType is 'linear':
+        if self.YScaleType == 'linear':
             for ys in self.Ysampled:
                 self.y.append(self.Yreal_min + (self.Yreal_max - self.Yreal_min) / (self.Ypic_max - self.Ypic_min) * ( ys - self.Ypic_min))
-        elif self.YScaleType is 'log':
+        elif self.YScaleType == 'log':
             Yreal_min = log10(self.Yreal_min)
             Yreal_max = log10(self.Yreal_max)
             for ys in self.Ysampled:
