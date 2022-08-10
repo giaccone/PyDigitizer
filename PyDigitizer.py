@@ -2,7 +2,7 @@
 from PySide2.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout
 from PySide2.QtWidgets import QGroupBox, QPushButton, QFileDialog, QSizePolicy
 from PySide2.QtWidgets import QRadioButton, QInputDialog, QLabel, QDesktopWidget
-# from PyQt5.QtCore import Qt
+from PySide2.QtGui import QGuiApplication
 #
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -48,7 +48,7 @@ class Windows(QMainWindow):
     def __init__(self):
         super().__init__()
         #
-        sizeObject = QDesktopWidget().screenGeometry(-1)
+        sizeObject = QGuiApplication.primaryScreen().availableGeometry()
         screenRatio = sizeObject.height() / sizeObject.width()
         self.title = "PyDigitizer"
         self.top = 100
