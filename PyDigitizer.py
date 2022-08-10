@@ -4,42 +4,10 @@ from PySide2.QtWidgets import QGroupBox, QPushButton, QFileDialog, QSizePolicy
 from PySide2.QtWidgets import QRadioButton, QInputDialog, QLabel, QDesktopWidget
 from PySide2.QtGui import QGuiApplication
 #
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 #
 import sys
 from math import log10, floor
-
-
-# FigureCanvas
-class MplCanvas(FigureCanvas):
-    """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
-
-    def __init__(self, parent=None, width=5, height=4, dpi=100, filename=None):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-
-        self.compute_initial_figure(filename)
-
-        FigureCanvas.__init__(self, fig)
-        self.setParent(parent)
-
-        FigureCanvas.setSizePolicy(self,
-                                   QSizePolicy.Expanding,
-                                   QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
-
-    def compute_initial_figure(self,  filename):
-
-        if filename is None:
-            self.axes.clear()
-        else:
-            img = plt.imread(filename)
-            self.axes.clear()
-            self.axes.imshow(img)
-            self.axes.axis('off')
 
 
 # Main Windows
@@ -100,7 +68,6 @@ class MainWidget(QWidget):
         self.Xlog,
         self.Ylinear,
         self.Ylog,
-        self.FigCanvas,
         self.HintLabel,
         self.XminLabel,
         self.YminLabel,
@@ -216,17 +183,6 @@ class MainWidget(QWidget):
         LayoutSx7.addWidget(HintLabel,1,0)
         VBoxSx7.setLayout(LayoutSx7)
         # ----------------------------------
-        # Second Column (Figure)
-        VBoxDx1 = QGroupBox()
-        Layout2 = QGridLayout()
-        #
-        FigCanvas = MplCanvas(self, width=5, height=4, dpi=100)
-        toolbar = NavigationToolbar(FigCanvas, VBoxDx1)
-        #
-        Layout2.addWidget(FigCanvas,0,0)
-        Layout2.addWidget(toolbar,1,0)
-        VBoxDx1.setLayout(Layout2)
-        # ----------------------------------
         # ----------------------------------
         # Compose Windows
         windowLayout = QGridLayout()
@@ -238,22 +194,10 @@ class MainWidget(QWidget):
         windowLayout.addWidget(VBoxSx6, 5, 0)
         windowLayout.addWidget(VBoxSx7, 6, 0)
         #
-        #windowLayout.addWidget(VBoxDx1, 0, 1, 6, 1)
-        # Stretches
-        # windowLayout.setColumnStretch(0, 0)
-        # windowLayout.setColumnStretch(1, 2)
-        # windowLayout.setRowStretch(0, 1)
-        # windowLayout.setRowStretch(1, 1)
-        # windowLayout.setRowStretch(2, 1)
-        # windowLayout.setRowStretch(3, 1)
-        # windowLayout.setRowStretch(4, 1)
-        # windowLayout.setRowStretch(5, 1)
-        # windowLayout.setRowStretch(6, 0)
-        #
         self.setLayout(windowLayout)
         # ----------------------------------
         # ----------------------------------
-        return (Xlinear, Xlolg, Ylinear, Ylog, FigCanvas, HintLabel,
+        return (Xlinear, Xlolg, Ylinear, Ylog, HintLabel,
                 XminLabel, YminLabel, XmaxLabel, YmaxLabel)
 
     def loadImage(self):
@@ -264,10 +208,6 @@ class MainWidget(QWidget):
         plt.imshow(img)
         plt.axis('off')
         plt.show()
-        # self.FigCanvas.axes.clear()
-        # self.FigCanvas.axes.imshow(img)
-        # self.FigCanvas.axes.axis('off')
-        # self.FigCanvas.draw_idle()
 
     def pickXmin(self):
 
@@ -349,9 +289,6 @@ class MainWidget(QWidget):
 
         plt.figure(self.handle.number)
         pt = plt.ginput(n=-1, timeout=-1)
-        # self.FigCanvas.setFocusPolicy( Qt.ClickFocus )
-        # self.FigCanvas.setFocus()
-        # pt = self.FigCanvas.figure.ginput(n=-1, timeout=-1)
 
         self.Xsampled = []
         self.Ysampled = []
@@ -449,7 +386,6 @@ class MainWidget(QWidget):
             plt.show()
         except FileNotFoundError:
             self.HintLabel.setText('File not found')
-
 
 
 # Start App
