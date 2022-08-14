@@ -9,7 +9,7 @@ Get sample from a figure. Useful to extract data from paper for comparison.
 
 * Load it into PyDigitizer
 * provide some information (X_min, Y_min, X_max, Y_max, axis type, etc)
-* get data by clicking on the image
+* get data by clicking on the image or by defining a target color
 * save it
 
 <p align="center">
